@@ -4,7 +4,6 @@ services:
     plan: free
     runtime: python
     envVars:
-      - fromGroup: el-plan-env
       - key: ALLOWED_HOSTS
         value: "el-plan.onrender.com"
       - key: PORT
