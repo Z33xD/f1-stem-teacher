@@ -82,8 +82,8 @@ El-Plan-STEM/
    cd project
    python manage.py runserver
    ```
-   > The project would run at http://127.0.0.1:8000/
    > This is a development server, and not to be used in a production setting.
+   > The project would run at http://127.0.0.1:8000/.
 
 6. **Stop the server, once you're done using it**
    ```mathematica
