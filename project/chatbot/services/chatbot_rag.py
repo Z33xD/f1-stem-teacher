@@ -50,7 +50,7 @@ def vector_search(query, collection, field="description_embedding", limit=1):
     pipeline = [
         {
             "$vectorSearch": {
-                "index": "vector_index",  # Replace with your vector index name
+                "index": "vector_index",
                 "path": field,
                 "queryVector": query_embedding,
                 "numCandidates": 100,
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     print()
 
     # Example: Vector search to retrieve relevant circuit
-    query = "Monaco Grand Prix circuit"  # Could be dynamic
+    query = "Monaco Grand Prix circuit"
     circuit_docs = vector_search(query, circuits_collection)
     
     if circuit_docs:

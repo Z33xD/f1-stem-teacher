@@ -19,14 +19,12 @@ from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
 from core import views
-# from ml_models import views
 from chatbot import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
-    path('', include('chatbot.urls')) #,
-    # path('', include('ml_models.urls')),
+    path('', include('chatbot.urls'))
 ]
 
 if settings.DEBUG:
