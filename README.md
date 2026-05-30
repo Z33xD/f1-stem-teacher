@@ -2,6 +2,8 @@
 
 El Plan STEM is a Django-based web application that combines the excitement of Formula 1 with engaging, AI-powered STEM education. Whether you're a student learning physics through lap times or an F1 enthusiast curious about race analytics, this project delivers a powerful, interactive experience.
 
+This repository is originally based on [this](https://github.com/Z33xD/El-Plan-STEM) repository.
+
 ---
 
 ## Features
@@ -31,20 +33,8 @@ El Plan STEM is a Django-based web application that combines the excitement of F
 
 - **Backend:** Django 5.2.1
 - **Database:** MongoDB (via `django-mongodb-backend`)
-- **AI Integration:** Google Gemini (Gemini 1.5 Flash)
-- **Machine Learning:** scikit-learn, TensorFlow, sentence-transformers
-- **Frontend:** Django templates + static files (CSS/JS)
-
----
-
-## AI and ML Details
-
-- Chatbot uses Google's Gemini model for generating and evaluating questions.
-- Semantic search powered by `sentence-transformers` for intelligent data retrieval.
-- ML models include:
-  - `turn_severity_rf_model.joblib`: Turn severity predictions
-  - `momentum_lstm_model.h5`: Momentum analysis
-  - `f1_momentum_model.h5`: Momentum-based forecasting
+- **AI Integration:** Google Gemini (Gemini 2.5 Flash)
+- **Frontend:** Django templates + static files (HTML/CSS/JS)
 
 ---
 
@@ -52,32 +42,34 @@ El Plan STEM is a Django-based web application that combines the excitement of F
 
 ```
 El-Plan-STEM/
-│
-├── backend/
-│ ├── core/ # General site logic
-│ ├── chatbot/ # Chatbot and AI logic
-│ ├── ml_models/ # Legacy ML code (merged into chatbot)
-│ ├── templates/ # HTML templates
-│ ├── static/ # CSS, JS, images
-│ └── manage.py
+├── config/
+├── project/
+│   ├── backend/          # Django project settings (core config)
+│   ├── core/             # Main website (home, about, etc.)
+│   ├── chatbot/          # Chatbot system + AI services
+│   ├── explorer/        # Explorer feature/module
+│   ├── static/          # CSS, JS, images
+│   └── templates/       # HTML templates
 ├── requirements.txt
-└── .env (your environment variables)
+├── README.md
+├── .env.example
+├── .env
 ```
 
 ---
 
 ## Setup Instructions
 
-1. **Install Python 3.11**
+1. **Install Python 3.14**
 
 2. **Create virtual environment**
    ```bash
-   py -3.11 -m venv venv
+   python -m venv venv
    ```
 
 3. **Activate the environment**
    ```bash
-   .\venv\Scripts\activate
+   .\venv\Scripts\Activate.ps1
    ```
 
 4. **Install dependencies**
@@ -87,11 +79,13 @@ El-Plan-STEM/
 
 5. **Run the server**
    ```bash
-   cd backend
+   cd project
    python manage.py runserver
    ```
+   > The project would run at http://127.0.0.1:8000/
+   > This is a development server, and not to be used in a production setting.
 
-6. **Stop the server**
+6. **Stop the server, once you're done using it**
    ```mathematica
    ctrl + C
    ```
@@ -107,24 +101,17 @@ El-Plan-STEM/
 
 | Route                    | Description                       |
 | ------------------------ | --------------------------------- |
-| `/chatbot/`              | Main chatbot interface            |
-| `/chatbot/chat/`         | Chat endpoint for educational bot |
-| `/chatbot/general/`      | General F1 assistant UI           |
-| `/chatbot/general/chat/` | General assistant chat endpoint   |
 | `/`                      | Home page                         |
+| `/chatbot/`              | Main chatbot interface            |
 | `/about/`                | About the project                 |
 
 ---
 
-## Special Thanks
+## Acknowledgements
 
 Thanks to the teams behind:
 - Google Generative AI
 - Ergast's Formula 1 open datasets
 - Django & MongoDB communities
-
----
-
-> "Learning STEM at full throttle with the power of Formula 1!"
 
 ---
