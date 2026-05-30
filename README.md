@@ -58,9 +58,12 @@ El-Plan-STEM/
 
 ---
 
-## Setup Instructions
+## Setup Instructions, after cloning the repository
 
-1. **Install Python 3.14**
+1. **Install Python 3.14, and verify version**
+   ```bash
+   python --version
+   ```
 
 2. **Create virtual environment**
    ```bash
@@ -68,9 +71,30 @@ El-Plan-STEM/
    ```
 
 3. **Activate the environment**
+   - Windows (Powershell)
    ```bash
    .\venv\Scripts\Activate.ps1
    ```
+   - Windows (Command Prompt)
+   ```cmd
+   venv\Scripts\activate.bat
+   ```
+   - macOS / Linux
+   ```bash
+   source venv/bin/activate
+   ```
+
+4. **Configure environment variables**
+   - Windows (Powershell)
+   ```powershell
+   copy .env.example .env
+   ```
+   - macOS / Linux
+   ```bash
+   cp .env.example .env
+   ```
+
+   Open the .env file and update the required environment variables
 
 4. **Install dependencies**
    ```bash
