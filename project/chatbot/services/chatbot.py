@@ -4,8 +4,7 @@ import random
 from google import genai
 from google.genai import types
 from pymongo import MongoClient 
-from dotenv import load_dotenv  
-from sentence_transformers import SentenceTransformer
+from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
@@ -20,7 +19,16 @@ pit_stops_collection = db["pit_stops"]
 races_collection=db["races"]
 
 # SentenceTransformers for embeddings
-embedder = SentenceTransformer('all-MiniLM-L6-v2')
+embedder = None
+
+def get_embedder():
+    global embedder
+
+    if embedder is None:
+        from sentence_transformers import SentenceTransformer
+        embedder = SentenceTransformer('all-MiniLM-L6-v2')
+
+    return embedder
 
 # Gemini API setup
 client=genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
@@ -60,7 +68,7 @@ chat_session = client.chats.create(
 custom_history=[]
 
 def generate_embedding(text):
-    return embedder.encode(text, convert_to_numpy=True).tolist()
+    return get_embedder().encode(text, convert_to_numpy=True).tolist()
 
 def vector_search(query, collection, field="description_embedding", limit=1):
     query_embedding = generate_embedding(query)
