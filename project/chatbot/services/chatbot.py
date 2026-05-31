@@ -1,7 +1,8 @@
 import os
 import random
-import google.generativeai as genai
-from google.generativeai.generative_models import GenerativeModel
+
+from google import genai
+from google.genai import types
 from pymongo import MongoClient 
 from dotenv import load_dotenv  
 from sentence_transformers import SentenceTransformer
@@ -22,7 +23,11 @@ races_collection=db["races"]
 embedder = SentenceTransformer('all-MiniLM-L6-v2')
 
 # Gemini API setup
-genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+client=genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+SYSTEM_INSTRUCTION='''
+            You are an expert educator and Formula 1 enthusiast. Use provided Formula 1 data to generate science-related questions (e.g., physics or math) themed around Formula 1. Wait for the student's answer. Mention the unit in which user's answer should be. Consider it correct if answer matches till 2 decimal places. Suggest the user to explain their thought-process, it is not mandatory (in the question itself).If correct, congratulate them and ask another question. If incorrect, mention that it is incorrect and explain the answer using fun, easy-to-understand F1 analogies, and ask next question.
+        '''
+
 generation_config = {
     "temperature": 1,
     "top_p": 0.95,
@@ -30,21 +35,28 @@ generation_config = {
     "max_output_tokens": 8192,
     "response_mime_type": "text/plain",
 }
-safety_settings = [
+SAFETY_SETTINGS = [
     {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
     {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
     {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
 ]
-model = genai.GenerativeModel(
-    model_name="gemini-2.5-flash",
-    safety_settings=safety_settings,
-    generation_config=generation_config,
-    system_instruction='''
-You are an expert educator and Formula 1 enthusiast. Use provided Formula 1 data to generate science-related questions (e.g., physics or math) themed around Formula 1. Wait for the student's answer. Mention the unit in which user's answer should be. Consider it correct if answer matches till 2 decimal places. Suggest the user to explain their thought-process, it is not mandatory (in the question itself).If correct, congratulate them and ask another question. If incorrect, mention that it is incorrect and explain the answer using fun, easy-to-understand F1 analogies, and ask next question.
-'''
+
+def build_generation_config(instruction):
+    return types.GenerateContentConfig(
+        system_instruction=instruction,
+        safety_settings=SAFETY_SETTINGS,
+        temperature=1.0,
+        top_p=0.95,
+        top_k=64,
+        max_output_tokens=8192,
+        response_mime_type="text/plain",
+    )
+
+chat_session = client.chats.create(
+    model='gemini-2.5-flash',
+    config=build_generation_config(SYSTEM_INSTRUCTION)
 )
-chat_session = model.start_chat(history=[])
 custom_history=[]
 
 def generate_embedding(text):
@@ -85,10 +97,7 @@ Question: [Your question here]
 """
             response = chat_session.send_message(prompt)
             model_response = response.text
-            chat_session.history.append({
-                "role": "model",
-                "parts": [model_response],
-            })
+        
             custom_history.append({
                 "correct_answer": correct_answer,
                 "retrieved_data": retrieved_data
@@ -110,10 +119,9 @@ Incorrect. The correct answer is {correct_answer}. Explain why using a fun Formu
             else:
                 prompt = user_input
             
-            chat_session.history.append({"role": "user", "parts": [user_input]})
             response = chat_session.send_message(prompt)
             model_response = response.text
-            chat_session.history.append({"role": "model", "parts": [model_response]})
+         
         return model_response
     except Exception as e:
         return f"Error: {str(e)}"
@@ -161,22 +169,17 @@ def build_retrieved_data(source_type):
         print(f"Error retrieving {source_type} data: {e}")
         return None, None
     
-def reset_chat_session(system_instruction):
+def reset_chat_session(new_system_instruction):
     """
     Resets the model and chat session using a new system instruction.
     Useful when user switches subtopic.
     """
-    global model, chat_session, custom_history
-    import google.generativeai as genai
-    from .gemini_config import GENERATION_CONFIG, SAFETY_SETTINGS
+    global chat_session, custom_history
 
-    model = genai.GenerativeModel( # type: ignore
-        model_name="gemini-2.5-flash",
-        system_instruction=system_instruction,
-        generation_config=GENERATION_CONFIG, # type: ignore
-        safety_settings=SAFETY_SETTINGS
+    chat_session = client.chats.create(
+        model='gemini-2.5-flash',
+        config=build_generation_config(new_system_instruction)
     )
-    chat_session = model.start_chat(history=[])
     custom_history = []  
 
 if __name__ == "__main__":
